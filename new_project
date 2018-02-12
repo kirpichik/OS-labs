@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ -z $1 ]
+then
+  echo "Need argument: <project_name>"
+  exit 1
+fi
+
+if [ -e $1 ]
+then
+  echo "Project \"$1\" already exists."
+  exit 1
+fi
+
+echo "Creating project \"$1\"..."
+
+mkdir $1
+cp make $1
+
+echo "Project \"$1\" created."
+

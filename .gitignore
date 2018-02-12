@@ -1,0 +1,5 @@
+upload.sh
+*/build/
+*.swo
+*.swp
+
