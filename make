@@ -28,7 +28,7 @@ then
   exit 1
 fi
 
-EXECUTE="$CC $CCFLAGS -o $OUTPUT_PATH$OUTPUT $SOURCE $LD_FLAGS"
+EXECUTE="$CC $CC_FLAGS -o $OUTPUT_PATH$OUTPUT $SOURCE $LD_FLAGS"
 
 echo "Building sources with command: \"$EXECUTE\"..."
 SECONDS=0
