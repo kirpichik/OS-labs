@@ -1,3 +1,7 @@
+//
+// Лабораторная работа #2, Время в штате Калифорния
+// 
+
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
