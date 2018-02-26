@@ -1,5 +1,5 @@
 //
-// Лабораторная работа #2, Время в штате Калифорния
+// Lab work #2, Time in Kalifornia
 // 
 
 #include <stdio.h>

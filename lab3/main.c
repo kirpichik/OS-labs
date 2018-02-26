@@ -1,5 +1,5 @@
 //
-// Лабораторная работа #3, UID файла.
+// Lab work #3, UID of file.
 //
 
 #include <stdio.h>
