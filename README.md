@@ -17,4 +17,5 @@ http://ccfit.nsu.ru/~deviv/courses/unix/tasks.html
 ## Завершенные:
 
 * Время в штате Калифорния **(2)**
+* Список строк **(4)**
 
