@@ -15,8 +15,8 @@ fi
 echo "Creating project \"$1\"..."
 
 mkdir $1
-cp make $1
-cp template.c main.c
+cp Makefile_template $1/Makefile
+cp template.c $1/main.c
 
 echo "Project \"$1\" created."
 
