@@ -1,8 +1,8 @@
 
 CC=gcc
 CFLAGS=-c -Wall
-LDFLAGS=
-SOURCES=main.c
+LDFLAGS=-lm
+SOURCES=main.c linked_list.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=lab
 
