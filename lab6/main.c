@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stddef.h>
 
 #define MAX_LINES 100
 #define FINISH_NUMBER 0

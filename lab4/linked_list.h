@@ -10,6 +10,7 @@
 #define linked_list_h
 
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef struct Node {
     struct Node *next;

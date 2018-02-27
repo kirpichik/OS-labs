@@ -1,6 +1,6 @@
 
 CC=gcc
-CFLAGS=-c -Wall
+CFLAGS=-c -Wall -std=c99
 LDFLAGS=-lm
 SOURCES=main.c linked_list.c
 OBJECTS=$(SOURCES:.c=.o)
