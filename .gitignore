@@ -2,4 +2,6 @@ upload.sh
 */build/
 *.swo
 *.swp
+*.o
+lab
 
