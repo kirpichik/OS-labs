@@ -1,10 +1,10 @@
 //
 // Lab work #2, Time in Kalifornia
-// 
+//
 
 #include <stdio.h>
-#include <time.h>
 #include <stdlib.h>
+#include <time.h>
 
 int main() {
   // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
@@ -16,4 +16,3 @@ int main() {
   printf("%s", ctime(&tm));
   return 0;
 }
-

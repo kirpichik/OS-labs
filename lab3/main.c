@@ -3,8 +3,8 @@
 //
 
 #include <stdio.h>
-#include <unistd.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
@@ -15,4 +15,3 @@ int main(int argc, char* argv[]) {
   printf("Real uid: ", getuid());
   return 0;
 }
-

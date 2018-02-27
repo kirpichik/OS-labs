@@ -2,12 +2,12 @@
 // Lab work #5, Table of text file lines.
 //
 
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #define MAX_LINES 100
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     return EINVAL;
   }
 
-  if ((file = open(argv[1], O_RDONLY | O_NDELAY)) == -1) { // TODO - ??
+  if ((file = open(argv[1], O_RDONLY | O_NDELAY)) == -1) {
     perror(argv[0]);
     return EIO;
   }
@@ -45,26 +45,26 @@ int main(int argc, char* argv[]) {
  * @param file Input file descriptor.
  * @param offsets Pointer to offsets table.
  * @param lens Pointer to lengths table.
- * 
+ *
  * @return Lines count or -1, if error occuried when read.
  */
 int prepareTables(int file, long* offsets, int* lens) {
   char ch;
   int code;
   int currOffset;
-  int currLine = 1; // Zero line is file begin.
+  int currLine = 1;  // Zero line is file begin.
   int currPos = 0;
 
   offsets[1] = 0L;
 
-  while(1) {
+  while (1) {
     if ((code = read(file, &ch, 1)) == -1) {
       perror("Cannot read file: ");
       return -1;
     }
 
     // Check EOF
-    if (code == 0)
+    if (!code)
       break;
 
     // Check lines count
@@ -107,7 +107,7 @@ int prepareTables(int file, long* offsets, int* lens) {
 int doInput(int file, int lines, long* offsets, int* lens) {
   int lineNum;
   char end;
-  
+
   printf("Type line number from 1 to %d\n", lines);
 
   while (1) {
@@ -140,14 +140,13 @@ int doInput(int file, int lines, long* offsets, int* lens) {
  * @param offset File offset to line begin.
  * @param len Len of line.
  *
- * @return Zero if line readed and print success or non-zero, if not.
+ * @return Zero if line readed and printed success or non-zero, if not.
  */
 int printLine(int file, long offset, int len) {
   char c;
   lseek(file, offset, SEEK_SET);
 
-  while (len --> 0) {
-
+  while (len-- > 0) {
     if (read(file, &c, 1) == -1) {
       perror("Cannot read file: ");
       return -1;
@@ -161,4 +160,3 @@ int printLine(int file, long offset, int len) {
 
   return 0;
 }
-

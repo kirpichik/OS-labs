@@ -2,10 +2,10 @@
 // Lab work #4
 //
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include "linked_list.h"
 
 int readLine(char*, size_t);
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
   }
 
   listForeach(list, &printForeach);
-  
+
   listFree(list, true);
 
   return 0;
@@ -51,8 +51,7 @@ int readLines(List* list) {
   char buff[BUFSIZ];
   char* line;
 
-  while(1) {
-
+  while (1) {
     printf(">> ");
     if (!readLine(buff, BUFSIZ))
       break;
@@ -60,18 +59,16 @@ int readLines(List* list) {
     if (buff[0] == '.')
       break;
 
-    line = (char*) malloc(sizeof(char) * (strlen(buff) + 1));
+    line = (char*)malloc(sizeof(char) * (strlen(buff) + 1));
     strcpy(line, buff);
 
     if (listPushBack(list, line))
       return ENOMEM;
-
   }
 
   return 0;
 }
 
 void printForeach(void* line) {
-  puts((char*) line);
+  puts((char*)line);
 }
-
