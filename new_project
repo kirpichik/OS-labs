@@ -14,9 +14,11 @@ fi
 
 echo "Creating project \"$1\"..."
 
+PARENT="$(dirname "$0")"
+
 mkdir $1
-cp Makefile_template $1/Makefile
-cp template.c $1/main.c
+cp $PARENT/Makefile_template $1/Makefile
+cp $PARENT/template.c $1/main.c
 
 echo "Project \"$1\" created."
 
