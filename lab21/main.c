@@ -53,13 +53,13 @@ int main() {
   }
   
   // Setup press button signal
-  if (sigset(SIGINT, sigIntHandler) == SIG_ERR) {
+  if (signal(SIGINT, sigIntHandler) == SIG_ERR) {
     perror("Cannot set INT signal handler");
     return -1;
   }
 
   // Setup finish signal (Ctrl + Backslash)
-  if (sigset(SIGQUIT, sigQuitHandler) == SIG_ERR) {
+  if (signal(SIGQUIT, sigQuitHandler) == SIG_ERR) {
     perror("Cannot set QUIT signal handler");
     return -1;
   }
