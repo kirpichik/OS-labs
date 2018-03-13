@@ -127,7 +127,8 @@ int doInput(int file, int lines, long* offsets, int* lens) {
   while (1) {
     printf(">> ");
 
-    siginterrupt(SIGALRM, 1);
+    //siginterrupt(SIGALRM, 1);
+    sigaction(SIGALRM, NULL, NULL);
     alarm(WAIT_TIME);
 
     input = scanf("%d%c", &lineNum, &end);
