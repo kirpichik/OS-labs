@@ -226,13 +226,13 @@ void* scan_dir_thread(void* target) {
   // Выделение чуть больше размера структуры из-за записи имени файла в конце
   entry = (struct dirent*) malloc(sizeof(struct dirent) + name_max + 1);
 
-  if ((dir = opendir(task->source_path) == NULL)) {
+  if ((dir = opendir(task->source_path)) == NULL) {
     perror("Cannot read dir structure");
     free_copy_task(task);
     return NULL;
   }
 
-  while ((ret = readdir_t(dir, entry, &result)) == 0 && result != NULL) {
+  while ((ret = readdir_r(dir, entry, &result)) == 0 && result != NULL) {
     char* src = append_path(task->source_path, entry->d_name);
     char* dst = append_path(task->dest_path, entry->d_name);
 
