@@ -141,7 +141,7 @@ void free_copy_task(copy_task_t* task) {
  * Запрашивает файловый дескриптор для файла с указанными флагами.
  * Если на данный момент нет доступных файловых дескрипторов,
  * ждет таймаут и перезапрашивает его. Так до тех пор, пока
- * дескриптор не будет выдан или же не произайдет иная ошибка.
+ * дескриптор не будет выдан или же не произойдет иная ошибка.
  *
  * @param pathname Путь до файла.
  * @param flags Флаги для дескриптора.
@@ -161,6 +161,30 @@ int request_fd(char* pathname, int flags, mode_t* mode) {
   }
 
   return fd;
+}
+
+/**
+ * Запрашивает поток для чтения файлов в директории.
+ * Если на данный момент нет доступных дескрипторов для чтения директории,
+ * ждет таймаут и перезапрашивает его. Так до тех пор, пока дескриптор не будет
+ * выдан или же не прозойдет иная ошибка.
+ *
+ * @param pathname Путь до директории.
+ *
+ * @return Поток для чтения директории или NULL, если произошла ошибка.
+ */
+DIR* request_dir(char* pathname) {
+  DIR* dir;
+  while ((dir = opendir(pathname)) == NULL) {
+    if (errno != EMFILE) {
+      perror("Cannot open dir structure");
+      return NULL;
+    }
+
+    sleep(REQUEST_FD_TIMEOUT);
+  }
+
+  return dir;
 }
 
 /**
@@ -270,8 +294,7 @@ void* scan_dir_thread(void* target) {
   // Выделение чуть больше размера структуры из-за записи имени файла в конце
   entry = (struct dirent*) malloc(sizeof(struct dirent) + name_max + 1);
 
-  if ((dir = opendir(task->source_path)) == NULL) {
-    perror("Cannot read dir structure");
+  if ((dir = request_dir(task->source_path)) == NULL) {
     free_copy_task(task);
     FINISH_TASK();
   }
