@@ -16,6 +16,16 @@
 #define REQUEST_FD_TIMEOUT 1
 #define BUFFER_SIZE 1024
 
+#define FINISH_TASK() {\
+  decrement_tasks();\
+  return NULL;\
+}
+
+#define CHECK_ERROR(value, errmsg) if ((value) != 0) {\
+  perror(errmsg);\
+  return -1;\
+}
+
 typedef struct copy_task {
   size_t src_len;
   size_t dst_len;
@@ -35,6 +45,29 @@ int handle_path(char*, char*);
 void* copy_file_thread(void*);
 void* scan_dir_thread(void*);
 
+static pthread_attr_t default_attr;
+
+static pthread_mutex_t tasks_mutex;
+static pthread_cond_t tasks_cond;
+static volatile int tasks;
+
+void increment_tasks() {
+  pthread_mutex_lock(&tasks_mutex);
+  tasks++;
+  pthread_mutex_unlock(&tasks_mutex);
+}
+
+void decrement_tasks() {
+  pthread_mutex_lock(&tasks_mutex);
+  tasks--;
+  pthread_cond_signal(&tasks_cond);
+  pthread_mutex_unlock(&tasks_mutex);
+}
+
+int get_tasks_count() {
+  return tasks;
+}
+
 /**
  * Присодениняет к названию родительского каталога его дочерний объект.
  *
@@ -52,8 +85,11 @@ char* append_path(char* parent, char* child) {
     return NULL;
 
   memcpy(result, parent, parent_len);
-  result[parent_len] = '/';
-  strcpy(result + parent_len + 1, child);
+  if (result[parent_len - 1] != '/') {
+    result[parent_len] = '/';
+    strcpy(result + parent_len + 1, child);
+  } else
+    strcpy(result + parent_len, child);
 
   return result;
 }
@@ -154,7 +190,9 @@ int handle_path(char* src_path, char* dst_path) {
       return -1;
 
     void* (*func)(void*) = S_ISREG(src_pathstat.st_mode) ? &copy_file_thread : &scan_dir_thread;
-    if (pthread_create(&thread, NULL, func, task) == -1) {
+    increment_tasks();
+    if (pthread_create(&thread, &default_attr, func, task) == -1) {
+      decrement_tasks();
       perror("Cannot create thread");
       free_copy_task(task);
       return -1;
@@ -171,12 +209,15 @@ int handle_path(char* src_path, char* dst_path) {
  */
 void* copy_file_thread(void* target) {
   copy_task_t* task = (copy_task_t*) target;
-  int src_fd = request_fd(task->source_path, O_RDONLY | O_CREAT | O_EXCL, NULL);
+#ifdef VERBOSE
+  printf("COPY: %s -> %s\n", task->source_path, task->dest_path);
+#endif
+  int src_fd = request_fd(task->source_path, O_RDONLY, NULL);
   if (src_fd == -1)
-    return NULL;
-  int dst_fd = request_fd(task->dest_path, O_WRONLY, &task->mode);
+    FINISH_TASK();
+  int dst_fd = request_fd(task->dest_path, O_WRONLY | O_CREAT | O_EXCL, &task->mode);
   if (dst_fd == -1)
-    return NULL;
+    FINISH_TASK();
 
   char* buff[BUFFER_SIZE];
   ssize_t count;
@@ -187,7 +228,7 @@ void* copy_file_thread(void* target) {
       close(src_fd);
       close(dst_fd);
       free_copy_task(task);
-      return NULL;
+      FINISH_TASK();
     }
   }
 
@@ -197,7 +238,7 @@ void* copy_file_thread(void* target) {
   close(src_fd);
   close(dst_fd);
   free_copy_task(task);
-  return NULL;
+  FINISH_TASK();
 }
 
 
@@ -206,6 +247,9 @@ void* copy_file_thread(void* target) {
  */
 void* scan_dir_thread(void* target) {
   copy_task_t* task = (copy_task_t*) target;
+#ifdef VERBOSE
+  printf("SCAN: %s -> %s\n", task->source_path, task->dest_path);
+#endif
   DIR* dir;
   int ret;
   struct dirent* result;
@@ -215,12 +259,12 @@ void* scan_dir_thread(void* target) {
   if (mkdir(task->dest_path, task->mode) == -1) {
     perror("Cannot create target dir");
     free_copy_task(task);
-    return NULL;
+    FINISH_TASK();
   }
 
   if ((name_max = pathconf(task->dest_path, _PC_NAME_MAX)) == -1) {
     perror("Cannot get path attributes");
-    return NULL;
+    FINISH_TASK();
   }
 
   // Выделение чуть больше размера структуры из-за записи имени файла в конце
@@ -229,10 +273,13 @@ void* scan_dir_thread(void* target) {
   if ((dir = opendir(task->source_path)) == NULL) {
     perror("Cannot read dir structure");
     free_copy_task(task);
-    return NULL;
+    FINISH_TASK();
   }
 
   while ((ret = readdir_r(dir, entry, &result)) == 0 && result != NULL) {
+    if (!strcmp(entry->d_name, "") || !strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+        continue;
+
     char* src = append_path(task->source_path, entry->d_name);
     char* dst = append_path(task->dest_path, entry->d_name);
 
@@ -243,7 +290,7 @@ void* scan_dir_thread(void* target) {
       free(entry);
       closedir(dir);
       free_copy_task(task);
-      return NULL;
+      FINISH_TASK();
     }
   }
 
@@ -253,7 +300,7 @@ void* scan_dir_thread(void* target) {
   free(entry);
   closedir(dir);
   free_copy_task(task);
-  return NULL;
+  FINISH_TASK();
 }
 
 int main(int argc, char* argv[]) {
@@ -272,10 +319,19 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
+  CHECK_ERROR(pthread_attr_init(&default_attr), "Cannot create pthread attr");
+  CHECK_ERROR(pthread_attr_setdetachstate(&default_attr, PTHREAD_CREATE_DETACHED), "Cannot set pthread attr");
+  CHECK_ERROR(pthread_mutex_init(&tasks_mutex, NULL), "Cannot create mutex");
+  CHECK_ERROR(pthread_cond_init(&tasks_cond, NULL), "Cannot create condition");
+
   result = handle_path(argv[1], argv[2]);
-  if (result == 1) {
+  if (result == 1)
     printf("Source path is not file or dir.\n");
-  }
+
+  pthread_mutex_lock(&tasks_mutex);
+  while (get_tasks_count() > 0)
+    pthread_cond_wait(&tasks_cond, &tasks_mutex);
+  pthread_mutex_unlock(&tasks_mutex);
 
   return result;
 }

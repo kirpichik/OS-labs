@@ -1,6 +1,6 @@
 
 CC=gcc
-CFLAGS=-c -Wall -std=c99 -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__
+CFLAGS=-c -Wall -std=c99 -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -DVERBOSE
 LDFLAGS=-lm -lpthread
 SOURCES=main.c
 OBJECTS=$(SOURCES:.c=.o)
@@ -13,7 +13,7 @@ $(EXECUTABLE): $(OBJECTS)
 
 .c.o:
 	$(CC) $(CFLAGS) $< -o $@
-	
+
 clean:
 	rm -rf $(OBJECTS) $(EXECUTABLE)
 
