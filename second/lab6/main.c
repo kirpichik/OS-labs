@@ -257,7 +257,7 @@ void* scan_dir_thread(void* target) {
 }
 
 int main(int argc, char* argv[]) {
-  if (argc != 2) {
+  if (argc != 3) {
     printf("Usage: %s <src_path> <dst_path>\n", argv[0]);
     return -1;
   }
