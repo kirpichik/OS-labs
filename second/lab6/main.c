@@ -276,8 +276,8 @@ void* scan_dir_thread(void* target) {
 #endif
   DIR* dir;
   int ret;
-  struct dirent* result;
-  struct dirent* entry;
+  struct dirent64* result;
+  struct dirent64* entry;
   long name_max;
 
   if (mkdir(task->dest_path, task->mode) == -1) {
@@ -292,14 +292,14 @@ void* scan_dir_thread(void* target) {
   }
 
   // Выделение чуть больше размера структуры из-за записи имени файла в конце
-  entry = (struct dirent*) malloc(sizeof(struct dirent) + name_max + 1);
+  entry = (struct dirent64*) malloc(sizeof(struct dirent64) + name_max + 1);
 
   if ((dir = request_dir(task->source_path)) == NULL) {
     free_copy_task(task);
     FINISH_TASK();
   }
 
-  while ((ret = readdir_r(dir, entry, &result)) == 0 && result != NULL) {
+  while ((ret = readdir64_r(dir, entry, &result)) == 0 && result != NULL) {
     if (!strcmp(entry->d_name, "") || !strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
         continue;
 

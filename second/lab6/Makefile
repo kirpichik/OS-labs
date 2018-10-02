@@ -1,7 +1,7 @@
 
 CC=gcc
 CFLAGS=-c -Wall -std=c99 -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -D_DEFAULT_SOURCE
-LDFLAGS=-lm -lpthread
+LDFLAGS=-mt -lm -lpthread
 SOURCES=main.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=lab
