@@ -1,6 +1,6 @@
 
 CC=gcc
-CFLAGS=-c -Wall -std=c99 -D__EXTENSIONS__ -D_REENTRANT
+CFLAGS=-c -O2 -Wall -std=c99 -D__EXTENSIONS__ -D_REENTRANT
 LDFLAGS=-lm -lpthread
 SOURCES=main.c
 OBJECTS=$(SOURCES:.c=.o)

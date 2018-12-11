@@ -6,8 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
-#define ITERATIONS 20000000
+#define ITERATIONS 2000000000
+#define BILLION 1000000000.
 
 typedef struct pi_state {
   size_t pos;
@@ -17,13 +19,18 @@ typedef struct pi_state {
 } pi_state_t;
 
 void* count_pi(void* arg) {
+  struct timespec start, stop;
   pi_state_t* state = (pi_state_t*)arg;
 
+  clock_gettime(CLOCK_REALTIME, &start);
   state->result = 0.0;
   for (size_t i = state->pos; i <= ITERATIONS; i += state->amount) {
     state->result += 1.0 / (i * 4.0 + 1.0);
     state->result -= 1.0 / (i * 4.0 + 3.0);
   }
+  clock_gettime(CLOCK_REALTIME, &stop);
+  double accum = (stop.tv_sec - start.tv_sec) + (stop.tv_nsec - start.tv_nsec) / BILLION;
+  printf("%lf\n", accum);
 
   return &state->result;
 }
@@ -58,6 +65,8 @@ int main(int argc, char* argv[]) {
       free(states);
       return result;
     }
+
+    puts("Created");
   }
 
   for (size_t i = 0; i < threads_count; i++) {
@@ -68,6 +77,8 @@ int main(int argc, char* argv[]) {
     }
 
     pi += (*((double*)value));
+
+    puts("Joined");
   }
   free(states);
 
