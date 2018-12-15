@@ -1,0 +1,45 @@
+
+CC=gcc
+CFLAGS=-c -O2 -Wall -std=c99 -D__EXTENSIONS__ -D_REENTRANT
+LDFLAGS=-lm -lpthread
+
+SOURCES=main.c sync_common.c
+SOURCES_MUTEX=$(SOURCES) mutexes.c
+SOURCES_COND=$(SOURCES) conditions.c
+SOURCES_SEM=$(SOURCES) semaphores.c
+
+OBJECTS_MUTEX=$(SOURCES_MUTEX:.c=.o)
+OBJECTS_COND=$(SOURCES_COND:.c=.o)
+OBJECTS_SEM=$(SOURCES_SEM:.c=.o)
+
+EXECUTABLE_MUTEX=lab_mutex
+EXECUTABLE_COND=lab_cond
+EXECUTABLE_SEM=lab_sem
+
+all: mutex cond sem
+
+mutex: $(SOURCES_MUTEX) $(EXECUTABLE_MUTEX)
+
+cond: $(SOURCES_COND) $(EXECUTABLE_COND)
+
+sem: $(SOURCES_SEM) $(EXECUTABLE_SEM)
+
+$(EXECUTABLE_MUTEX): $(OBJECTS_MUTEX)
+	$(CC) $(LDFLAGS) $(OBJECTS_MUTEX) -o $@
+
+$(EXECUTABLE_COND): $(OBJECTS_COND)
+	$(CC) $(LDFLAGS) $(OBJECTS_COND) -o $@
+
+$(EXECUTABLE_SEM): $(OBJECTS_SEM)
+	$(CC) $(LDFLAGS) $(OBJECTS_SEM) -o $@
+
+.c.o:
+	$(CC) $(CFLAGS) $< -o $@
+
+clean:
+	rm -rf $(OBJECTS_MUTEX) $(OBJECTS_COND) $(OBJECTS_SEM) $(EXECUTABLE_MUTEX) $(EXECUTABLE_COND) $(EXECUTABLE_SEM)
+
+clear: clean
+
+rebuild: clean all
+
