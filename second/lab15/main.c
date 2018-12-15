@@ -2,12 +2,12 @@
 // Lab work #15, Sync output, processes
 //
 
-#include <stdio.h>
-#include <semaphore.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/wait.h>
 #include <errno.h>
+#include <semaphore.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #define PRINT_COUNT 10
