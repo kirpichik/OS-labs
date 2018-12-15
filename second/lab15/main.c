@@ -78,7 +78,7 @@ static void init_semaphores() {
     exit(errno);
   }
 
-  if ((child = sem_open(SEM_PARENT, flags, mode, 1)) == SEM_FAILED) {
+  if ((child = sem_open(SEM_CHILD, flags, mode, 1)) == SEM_FAILED) {
     perror("Cannot create child semaphore");
     exit(errno);
   }
