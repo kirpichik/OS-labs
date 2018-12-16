@@ -1,9 +1,9 @@
 
 CC=gcc
 CFLAGS=-c -O2 -Wall -std=c99 -D__EXTENSIONS__ -D_REENTRANT
-LDFLAGS=-lm -lpthread -lrt
+LDFLAGS=-lm -lpthread
 
-SOURCES=main.c
+SOURCES=main.c sync_common.c
 SOURCES_GLOBAL=$(SOURCES) list_global.c
 SOURCES_LOCAL=$(SOURCES) list_local.c
 SOURCES_DELAY=$(SOURCES) list_delay.c
