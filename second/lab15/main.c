@@ -21,7 +21,7 @@ static void open_semaphores(sem_t** parent, sem_t** child) {
     exit(errno);
   }
 
-  if ((*child = sem_open(SEM_PARENT, O_RDWR)) == SEM_FAILED) {
+  if ((*child = sem_open(SEM_CHILD, O_RDWR)) == SEM_FAILED) {
     perror("Cannot open child semaphore");
     exit(errno);
   }
@@ -78,7 +78,7 @@ static void init_semaphores() {
     exit(errno);
   }
 
-  if ((child = sem_open(SEM_CHILD, flags, mode, 1)) == SEM_FAILED) {
+  if ((child = sem_open(SEM_CHILD, flags, mode, 0)) == SEM_FAILED) {
     perror("Cannot create child semaphore");
     exit(errno);
   }
