@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define WORKERS_COUNT 5
+
 sem_t sem_a, sem_b, sem_c, sem_ab;
 
 typedef struct worker {
@@ -21,11 +23,11 @@ typedef struct worker {
 void* worker_routine(void* arg) {
   worker_t* worker = (worker_t*)arg;
   sem_t* sem_depends[2] = {worker->sem_depend_1, worker->sem_depend_2};
-  char count = worker->sem_depend_2 ? 2 : worker->sem_depend_1 ? 1 : 0;
+  size_t count = worker->sem_depend_2 ? 2 : worker->sem_depend_1 ? 1 : 0;
 
   while (1) {
     sleep(worker->delay);
-    for (char i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
       if (0 != sem_wait(sem_depends[i])) {
         perror("Cannot wait semaphore");
         exit(-1);
@@ -51,8 +53,8 @@ void sem_try_init(sem_t* sem) {
 }
 
 int main() {
-  pthread_t threads[5];
-  worker_t workers[5] = {
+  pthread_t threads[WORKERS_COUNT];
+  worker_t workers[WORKERS_COUNT] = {
       {"A", 1, NULL, NULL, &sem_a},
       {"B", 2, NULL, NULL, &sem_b},
       {"C", 3, NULL, NULL, &sem_c},
@@ -64,7 +66,7 @@ int main() {
   sem_try_init(&sem_c);
   sem_try_init(&sem_ab);
 
-  for (unsigned char i = 0; i < 5; i++)
+  for (size_t i = 0; i < WORKERS_COUNT; i++)
     if (pthread_create(&threads[i], NULL, &worker_routine, &workers[i])) {
       perror("Cannot create worker thread");
       return -1;
